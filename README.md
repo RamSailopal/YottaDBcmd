@@ -28,6 +28,14 @@ Commands:
   
   **version**        - Display the version of YottaDB
   
+# Requirements
+
+A working version of YottaDB is required on the same machine as where this utility is installed. You should also be able to execute YottaDB commands from anywhere i.e. with ydb.
+
+This can be acheived with:
+
+    ln -s /usr/local/bin/ydb <path to yottadb executable>
+  
 # Installation
 
     git clone https://github.com/RamSailopal/YottaDBcmd.git
