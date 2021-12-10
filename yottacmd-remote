@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+import socket
+import sys
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("-s", "--Server", help = "Hostname/IP of Server to connect to")
+parser.add_argument("-p", "--Port", help = "Port of Server to connect to")
+parser.add_argument("-c", "--Command", help = "yottacmd command")
+args = parser.parse_args()
+if args.Server:
+   host=args.Server
+else:
+   print("You must enter a host")
+   sys.exit(0)
+if args.Port:
+   port=args.Port
+else:
+   print("You must enter a port")
+   sys.exit(0)
+if args.Command:
+   cmd=args.Command
+else:
+   print("You must enter a yottacmd command")
+   sys.exit(0)
+s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((host,int(port)))
+s.send(bytes(cmd, "utf-8"))
+msg=s.recv(102400)
+print(msg.decode("utf-8"))
