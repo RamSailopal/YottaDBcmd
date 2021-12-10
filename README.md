@@ -27,3 +27,9 @@ Commands:
   **routineview**    - Display a routine from YottaDB
   
   **version**        - Display the version of YottaDB
+  
+# Installation
+
+    git clone https://github.com/RamSailopal/YottaDBcmd.git
+    cd YottaDBcmd
+    ./install.sh
