@@ -1,0 +1,242 @@
+#!/usr/bin/python3
+import typer
+import subprocess
+import re
+import fnmatch
+import os
+
+app = typer.Typer()
+
+@app.command(help="Display the version of YottaDB")
+def version():
+    cmd = "ydb <<< 'W $ZV' | awk '!/^$/&&!/>$/ { print }'"
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8')
+    print("\nYottaDB Version\n")
+    print(result1)
+
+
+@app.command(help="Display a list of globals in YottaDB")
+def globallist(glbal: str="*"):
+    cmd = "ydb <<< 'D ^%GD;*' | awk '/^Global/ { prnt=1;next } /^Total of/ { prnt=0 }prnt'"
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8').replace(" ","")
+    result1=result1.replace("\n","")
+    result1=result1.replace("^","\n^")
+    print("\nGlobals in YottaDB\n")
+    result2=result1.split("\n")
+    for glob in result2:
+       if ( fnmatch.fnmatch(glob,glbal) ):
+          print(glob)
+
+@app.command(help="Display a list of routines in YottaDB")
+def routinelist(routine: str="*"):
+    cmd = "(echo D ^%RD;sleep 1;echo \"*\";sleep 1;echo \"\";echo \"H\") | ydb | awk '/^Routine/{ prnt=1;next } /^Total of/||/>$/ { prnt=0 }prnt'"
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8').replace(" ","\n")
+    result1 = re.sub(r'\n+', '\n', result1).strip()
+    print("\nRoutines in YottaDB\n")
+    result2=result1.split("\n")
+    for rout in result2:
+       if ( fnmatch.fnmatch(rout,routine) ):
+          print(rout)
+
+	
+
+@app.command(help="View a global/global subscript in YottaDB")
+def globalview(glbal: str):
+    glbal=glbal.replace("^","")
+    glbal1=glbal.replace('"','\\"')
+    cmd = "(echo \"D ^%G\";echo \"\";echo \"" + glbal1 + "\";echo \"\")|ydb | awk '/^List/ { prnt=1;next } /^$/ { prnt=0 }prnt'"
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8').replace(" ","\n")
+    result1 = re.sub(r'\n+', '\n', result1).strip()
+    print("\nYottaDB Global view for ^" + glbal + "\n")
+    print(result1)
+
+@app.command(help="Search global(s) for a specific string. To pass more than one global, seperate global with commas i.e. 'global,global2'")
+def globalsearch(glbal: str, searchstr: str):
+    stryng=""
+    arr=glbal.split(",")
+    for i in arr:
+       stryng=str(stryng) + "echo \"" + str(i) + "\";"
+    cmd = "(echo \"D ^%GSE\";echo \"\";" + stryng + "echo \"\";echo \"" + searchstr + "\")|ydb | awk '/^Find string:/ { prnt=1;next } /^Total/ { prnt=0;next }prnt'"
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8')
+    print("\nSearching global " + glbal + " for search string " + searchstr + "\n")
+    print(result1)
+
+
+@app.command(help="Edit a global in YottaDB")
+def globaledit(ref: str):
+    cmd = "ydb <<< 'W $G(" + ref + ")' | awk '!/^$/&&!/>$/ { print }'"
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8').replace(" ","\n")
+    print("\nYottaDB Global edit for " + ref + "\n")
+    print(result1)
+    resp=input("Do you wish to amend? (Y/N) ")
+    if ( resp =="Y" ):
+       resp1=input("Enter new value ")
+       resp2=input("Set " + ref + " to " + resp1 + "? (Y/N) ")
+       if ( resp2 == "Y" ):
+          os.system("ydb <<< 'S " + ref + "=\"" + resp1 + "\"'")  
+          cmd = "ydb <<< 'W $G(" + ref + ")' | awk '!/^$/&&!/>$/ { print }'"
+          process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+          result = process.communicate()
+          result1=result[0].decode('utf-8').replace(" ","\n")
+          print("New value:\n" + ref + "=" + result1 + "\n")
+
+
+
+
+@app.command(help="Display a routine from YottaDB")
+def routineview(routine: str):
+    cmd = "ydb <<< \"W \$ZRO\" | awk '!/^$/&&!/>$/ { print }'"
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8')
+    print("\nYottaDB Routine view for ^" + routine + "\n")
+    result1=result1.replace("("," ")
+    result1=result1.replace(")"," ")
+    result1=result1.replace("*"," ")
+    result1 = re.sub(r'\n+', '\n', result1).strip()
+    result2=result1.split(" ")
+    for path in result2:
+        if ( path != "" and not fnmatch.fnmatch(path,'*.so') ):
+          cmd="find " + path + " -name \"" + routine + ".m\" -exec cat '{}' \\;"
+          process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+          result = process.communicate()
+          result1=result[0].decode('utf-8')
+          if (result1 != ""):
+             print(path + "/" + routine + ".m\n\n\n\n" + result1)
+
+
+
+@app.command(help="Edit and compile a routine from YottaDB")
+def routineedit(routine: str, nocompile: bool = False):
+    fnd=0
+    cmd = "ydb <<< \"W \$ZRO\" | awk '!/^$/&&!/>$/ { print }'"
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8')
+    result1=result1.replace("("," ")
+    result1=result1.replace(")"," ")
+    result1=result1.replace("*"," ")
+    result1 = re.sub(r'\n+', '\n', result1).strip()
+    result2=result1.split(" ")
+    for path in result2:
+        if ( path != "" and not fnmatch.fnmatch(path,'*.so') ):
+          cmd="find " + path + " -name \"" + routine + ".m\""
+          process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+          result = process.communicate()
+          result1=result[0].decode('utf-8')
+          if (result1 != ""):
+             fnd=1
+             print("\nEditing routine -  ^" + routine + "\n")
+             os.system('vi ' + result1 + ' </dev/tty >/dev/tty 2>&1')
+             if ( not nocompile ):
+               print("\n\nCompiling routine - " + routine + "\n\n")
+               os.system("ydb <<< 'ZL \"" + routine + ".m\"'")
+    if (fnd==0):
+       res=input("Do you want to create a new routine called " + routine + "? (Y/N) ")
+       if ( res == "Y" ):
+          for path1 in result2:
+             if fnmatch.fnmatch(path1,'*/r') :
+                print(path1)
+                print("\nCreating routine -  ^" + routine + "\n")
+                os.system('vi ' + path1 + '/' + routine + '.m </dev/tty >/dev/tty 2>&1')
+                if ( not nocompile ):
+                   print("\n\nCompiling routine - " + routine + "\n\n")
+                   os.system("ydb <<< 'ZL \"" + routine + ".m\"'")
+                break
+
+
+@app.command(help="Search routine(s) for given string. To search more than one routine, seperate routines with commas i.e. 'routine1,routine2'")
+def routinesearch(routine: str, searchstr: str):
+    stryng=""
+    arr=routine.split(",")
+    for i in arr:
+       stryng=str(stryng) + "echo \"" + str(i) + "\";"
+    cmd = "(echo \"D ^%RSE\";" + stryng + "echo \"\";echo \"" + searchstr + "\";echo \"\")|ydb | awk '/^Output device/ { prnt=1;next } /occurrences found in/ { print;prnt=0 }prnt'" 
+    print(cmd)
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8')
+    print("\nSearching routine " + routine + " for " + searchstr + "\n")
+    print(result1)
+
+
+@app.command(help="View YottaDB environmental variables")
+def configview():
+    cmd = "bash -c \"source /usr/local/yottadb/ydb_env_set && env | grep -E '(ydb|gtm)'\""
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8')
+    print("\nYottaDB Configuration environmental variables\n")
+    print(result1)
+
+@app.command(help="Execute a YottaDB command")
+def command(command: str):
+    cmd = "ydb <<< '" + command + "' |  awk '!/^$/ && !/>$/ { print }'"
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8')
+    print("\nYottaDB Command execution\n")
+    print(result1)
+
+
+@app.command(help="Enter YottaDB to execute commands")
+def prompt():
+    os.system("ydb")
+
+
+if __name__ == "__main__":
+    app()
