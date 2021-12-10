@@ -4,26 +4,26 @@ A command line utility for YottaDB written in Python and utilising Typer
 
 Commands:
 
-  command        Execute a YottaDB command
+  **command **       Execute a YottaDB command
   
-  configview     View YottaDB environmental variables
+  **configview**     View YottaDB environmental variables
   
-  globaledit     Edit a global in YottaDB
+  **globaledit**     Edit a global in YottaDB
   
-  globallist     Display a list of globals in YottaDB
+  **globallist**     Display a list of globals in YottaDB
   
-  globalsearch   Search global(s) for a specific string.
+  **globalsearch**   Search global(s) for a specific string.
   
-  globalview     View a global/global subscript in YottaDB
+  **globalview**    View a global/global subscript in YottaDB
   
-  prompt         Enter YottaDB to execute commands
+  **prompt**         Enter YottaDB to execute commands
   
-  routineedit    Edit and compile a routine from YottaDB
+  **routineedit**    Edit and compile a routine from YottaDB
   
-  routinelist    Display a list of routines in YottaDB
+  **routinelist**    Display a list of routines in YottaDB
   
-  routinesearch  Search routine(s) for given string.
+  **routinesearch**  Search routine(s) for given string.
   
-  routineview    Display a routine from YottaDB
+  **routineview**    Display a routine from YottaDB
   
-  version        Display the version of YottaDB
+  **version**        Display the version of YottaDB
