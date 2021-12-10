@@ -33,3 +33,8 @@ Commands:
     git clone https://github.com/RamSailopal/YottaDBcmd.git
     cd YottaDBcmd
     ./install.sh
+  
+ Restart your terminal to allow command completion to take effect
+ 
+ Run commands i.e **yottacmd globallist**
+  
