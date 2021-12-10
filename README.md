@@ -10,6 +10,8 @@ Commands:
   
   **configview**     - View YottaDB environmental variables
   
+  **databasesize**   - Database size statistics.
+  
   **globaledit**     - Edit a global in YottaDB
   
   **globallist**     - Display a list of globals in YottaDB
