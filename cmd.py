@@ -57,7 +57,9 @@ def routinelist(routine: str="*"):
 
 @app.command()
 def globalview(glbal: str):
-    cmd = "(echo \"D ^%G\";echo \"\";echo \"" + glbal + "\";echo \"\")|ydb | awk '/^List/ { prnt=1;next } /^$/ { prnt=0 }prnt'"
+    glbal=glbal.replace("^","")
+    glbal1=glbal.replace('"','\\"')
+    cmd = "(echo \"D ^%G\";echo \"\";echo \"" + glbal1 + "\";echo \"\")|ydb | awk '/^List/ { prnt=1;next } /^$/ { prnt=0 }prnt'"
     process = subprocess.Popen(cmd,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE,
@@ -70,7 +72,11 @@ def globalview(glbal: str):
 
 @app.command()
 def globalsearch(glbal: str, searchstr: str):
-    cmd = "(echo \"D ^%GSE\";echo \"\";echo \"" + glbal + "\";echo \"\";echo \"" + searchstr + "\")|ydb | awk '/^Find string:/ { prnt=1;next } /^Total/ { prnt=0;next }prnt'"
+    stryng=""
+    arr=glbal.split(",")
+    for i in arr:
+       stryng=str(stryng) + "echo \"" + str(i) + "\";"
+    cmd = "(echo \"D ^%GSE\";echo \"\";" + stryng + "echo \"\";echo \"" + searchstr + "\")|ydb | awk '/^Find string:/ { prnt=1;next } /^Total/ { prnt=0;next }prnt'"
     process = subprocess.Popen(cmd,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE,
@@ -168,6 +174,25 @@ def routineedit(routine: str, nocompile: bool = False):
              if ( not nocompile ):
                print("\n\nCompiling routine - " + routine + "\n\n")
                os.system("ydb <<< 'ZL \"" + routine + ".m\"'")
+
+
+@app.command()
+def routinesearch(routine: str, searchstr: str):
+    stryng=""
+    arr=routine.split(",")
+    for i in arr:
+       stryng=str(stryng) + "echo \"" + str(i) + "\";"
+    cmd = "(echo \"D ^%RSE\";" + stryng + "echo \"\";echo \"" + searchstr + "\";echo \"\")|ydb | awk '/^Output device/ { prnt=1;next } /occurrences found in/ { print;prnt=0 }prnt'" 
+    print(cmd)
+    process = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              shell=True)
+    result = process.communicate()
+    result1=result[0].decode('utf-8')
+    print("\nSearching routine " + routine + " for " + searchstr + "\n")
+    print(result1)
+
 
 @app.command()
 def configview():
