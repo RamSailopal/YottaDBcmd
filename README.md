@@ -2,7 +2,7 @@
 
 ![Alt text](yottacmd.webp?raw=true "Yottacmd")
 
-A command line utility for YottaDB written in Python and utilising Typer
+A command line utility with command line completion for YottaDB written in Python and utilising Typer
 
 Commands:
 
