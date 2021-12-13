@@ -50,7 +50,7 @@ This can be acheived with:
  
  Run commands i.e **yottacmd globallist**
  
- # Executing command remotely
+ # Executing commands remotely
  
  Commands can be run remotely against the YottaDB server by running the yottacmd-server process. To set up and run on the YottaDB server:
  
