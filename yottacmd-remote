@@ -6,31 +6,65 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--Server", help = "Hostname/IP of Server to connect to")
 parser.add_argument("-p", "--Port", help = "Port of Server to connect to")
 parser.add_argument("-c", "--Command", help = "yottacmd command")
+parser.add_argument("-U", "--Username", help = "Username for access")
+parser.add_argument("-P", "--Password", help = "Password for access")
 args = parser.parse_args()
+if args.Username:
+   Username=args.Username
+else:
+   print("You must enter a Username to gain access")
+   sys.exit(1)
+if args.Password:
+   Password=args.Password
+else:
+   print("You must enter a Password to gain access")
+   sys.exit(1)
 if args.Server:
    host=args.Server
 else:
    print("You must enter a host")
-   sys.exit(0)
+   sys.exit(1)
 if args.Port:
    port=args.Port
 else:
    print("You must enter a port")
-   sys.exit(0)
+   sys.exit(1)
 if args.Command:
    cmd=args.Command
 else:
    print("You must enter a yottacmd command")
-   sys.exit(0)
+   sys.exit(1)
+if (cmd == "help"):
+   cmd="--help"
 command1=cmd.split(" ")
 if (command1[0]=="routineedit"):
    print("Routine edits are not available using the remote client")
-   sys.exit(0)
+   sys.exit(1)
 if (command1[0]=="globaledit"):
    print("Global edits are not available using the remote client")
-   sys.exit(0)
+   sys.exit(1)
 s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host,int(port)))
-s.send(bytes(cmd, "utf-8"))
+s.send(bytes(Username, "utf-8"))
+msg=s.recv(1024)
+print(msg.decode('utf-8'))
+if ( msg.decode('utf-8') == "Username is incorrect" ):
+   sys.exit(1)
+s.send(bytes(Password, "utf-8"))
+msg=s.recv(1024)
+print(msg.decode('utf-8'))
+if ( msg.decode('utf-8') == "Password is incorrect" ):
+   sys.exit(1)
+cmd1=cmd.split(" ")
+cmd2="'" + cmd1[0] + "'"
+for i in range(len(cmd1)):
+  if ( i == 1 ):
+      cmd2=cmd2 + " '" + cmd1[i]
+  elif (i != 0):
+     cmd2=cmd2 + " " + cmd1[i]
+if (len(cmd1) != 1):
+   cmd2=cmd2 + "'"
+print(cmd2)
+s.send(bytes(cmd2, "utf-8"))
 msg=s.recv(102400)
 print(msg.decode("utf-8"))

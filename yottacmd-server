@@ -3,35 +3,56 @@ import socket
 import subprocess
 import argparse
 import sys
-parser = argparse.ArgumentParser()
-parser.add_argument("-s", "--Server", help = "Hostname/IP of Server")
-parser.add_argument("-p", "--Port", help = "Port of Server")
-args = parser.parse_args()
-if args.Server:
-   host=args.Server
-else:
-   print("Error you must enter a host")
-   sys.exit(1)
-if args.Port:
-   port=args.Port
-else:
-   print("Error you must enter a port")
-   sys.exit(1)
+import configparser
+config = configparser.ConfigParser()
+config.read('yottacmd.ini')
+yottaconfig = config['YottaDB']
+port=yottaconfig['Port']
+host=yottaconfig['Host']
+Username=yottaconfig['Username']
+Password=yottaconfig['Password']
+try:
+    socket.inet_aton(host)
+except socket.error:
+    print("Configured host is incorrect")
+    sys.exit(1)
 s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((host, int(port)))
 s.listen(5)
 
 while True:
+   psucc=0
+   usucc=0
    clientsocket, address = s.accept()
    print(f"Connection from {address} has been established!")
    msg=clientsocket.recv(1024) 
-   cmd="yottacmd " + msg.decode("utf-8")
-   process = subprocess.Popen(cmd,
+   if (msg.decode("utf-8") != Username):
+       resp="Username is incorrect"
+       clientsocket.send(resp.encode())
+       clientsocket.close()
+   else:
+       resp=" "
+       clientsocket.send(resp.encode())
+       usucc=1
+   if ( usucc == 1 ):
+      msg=clientsocket.recv(1024)
+      if (msg.decode("utf-8") != Password):
+          resp="Password is incorrect"
+          clientsocket.send(resp.encode())
+          clientsocket.close()
+      else:
+          resp=" "
+          clientsocket.send(resp.encode())
+          psucc=1
+   if ( usucc==1 and psucc==1 ):
+      msg=clientsocket.recv(1024)
+      cmd="yottacmd " + msg.decode("utf-8")
+      process = subprocess.Popen(cmd,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE,
                               shell=True)
-   result, err = process.communicate()
-   if (result.decode("utf-8")!=""):
-      clientsocket.send(result)
-   else:
-      clientsocket.send(err)
+      result, err = process.communicate()
+      if (result.decode("utf-8")!=""):
+         clientsocket.send(result)
+      else:
+         clientsocket.send(err)
