@@ -66,5 +66,15 @@ if (len(cmd1) != 1):
    cmd2=cmd2 + "'"
 print(cmd2)
 s.send(bytes(cmd2, "utf-8"))
+msgtotlen=s.recv(102400)
+msgtot=0
+s.send(bytes(" ", "utf-8"))
 msg=s.recv(102400)
-print(msg.decode("utf-8"))
+fullmess=msg.decode("utf-8")
+msgtot=msgtot+len(msg)
+while msgtot < int(msgtotlen.decode("utf-8")):
+   msg=s.recv(102400)
+   msgtot=msgtot+len(msg)
+   fullmess=fullmess + msg.decode("utf-8")
+print(fullmess)
+   

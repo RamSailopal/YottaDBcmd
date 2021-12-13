@@ -53,6 +53,12 @@ while True:
                               shell=True)
       result, err = process.communicate()
       if (result.decode("utf-8")!=""):
+         reslen=str(len(result)).encode()
+         clientsocket.send(reslen)
+         msg=clientsocket.recv(1024)
          clientsocket.send(result)
       else:
+         errlen=len(error).encode()
+         clientsocket.send(errlen)
+         msg=clientsocket.recv(1024)
          clientsocket.send(err)
