@@ -67,7 +67,7 @@ def globalview(glbal: str):
                               stderr=subprocess.PIPE,
                               shell=True)
     result = process.communicate()
-    result1=result[0].decode('utf-8').replace(" ","\n")
+    result1=result[0].decode('utf-8')
     result1 = re.sub(r'\n+', '\n', result1).strip()
     print("\nYottaDB Global view for ^" + glbal + "\n")
     print(result1)
