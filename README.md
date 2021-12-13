@@ -2,7 +2,7 @@
 
 ![Alt text](yottacmd.webp?raw=true "Yottacmd")
 
-A command line utility for YottaDB written in Python and utilising Typer
+A command line utility with command line completion for YottaDB written in Python and utilising Typer
 
 Commands:
 
@@ -49,4 +49,16 @@ This can be acheived with:
  Restart your terminal to allow command completion to take effect
  
  Run commands i.e **yottacmd globallist**
+ 
+ # Executing commands remotely
+ 
+ Commands can be run remotely against the YottaDB server by running the yottacmd-server process. To set up and run on the YottaDB server:
+ 
+ 1) Change the username and password as well as port if required in the yottacmd ini file.
+ 2) Run **./yottaserver.sh start** to start the server process (the process can then be checked with **./yottaserver.sh status** or stopped with .**/yottaserver.sh stop**)
+
+On the remote client, clone the repo or attain the **yottacmd-remote** executable and then run the command against the server i.e.
+
+    ./yottacmd-remote -U Yotta -P "Access-Please" -p 4001 -s "192.168.1.5" -c 'globallist'
+
   
