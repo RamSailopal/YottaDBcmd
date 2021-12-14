@@ -65,6 +65,6 @@ On the remote client, clone the repo or attain the **yottacmd-remote** executabl
     
  **Pre-requisites**
  
- Pycrypto required that the python3-devel package is installed and so install this before running any pip install pycrypto
+ Pycrypto requires that the **python3-devel** package is installed and so install this before running pip install pycrypto
 
   
