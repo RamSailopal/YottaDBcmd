@@ -2,6 +2,22 @@
 import socket
 import sys
 import argparse
+from Crypto.Cipher import AES
+
+def decrypt(msg, key):
+   obj = AES.new(key, AES.MODE_CBC, 'This is an IV456')
+   msg1=obj.decrypt(msg)
+   msg1 = msg1[:-msg1[-1]]
+   return msg1
+
+def encrypt(mess, key):
+   obj = AES.new(key, AES.MODE_CBC, 'This is an IV456')
+   mess=mess.encode()
+   length = 16 - (len(mess) % 16)
+   mess += bytes([length])*length
+   ciphertext = obj.encrypt(mess)
+   return ciphertext
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--Server", help = "Hostname/IP of Server to connect to")
 parser.add_argument("-p", "--Port", help = "Port of Server to connect to")
@@ -45,15 +61,22 @@ if (command1[0]=="globaledit"):
    sys.exit(1)
 s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host,int(port)))
-s.send(bytes(Username, "utf-8"))
+s.send(bytes(" ", "utf-8"))
+key=s.recv(1024)
+key=key.decode("utf-8")
+ciphertext = encrypt(Username, key)
+s.send(ciphertext)
 msg=s.recv(1024)
-print(msg.decode('utf-8'))
-if ( msg.decode('utf-8') == "Username is incorrect" ):
+msg1=decrypt(msg, key)
+print(msg1.decode('utf-8'))
+if ( msg1.decode('utf-8') == "Username is incorrect" ):
    sys.exit(1)
-s.send(bytes(Password, "utf-8"))
+ciphertext = encrypt(Password, key)
+s.send(ciphertext)
 msg=s.recv(1024)
-print(msg.decode('utf-8'))
-if ( msg.decode('utf-8') == "Password is incorrect" ):
+msg1=decrypt(msg, key)
+print(msg1.decode('utf-8'))
+if ( msg1.decode('utf-8') == "Password is incorrect" ):
    sys.exit(1)
 cmd1=cmd.split(" ")
 cmd2="'" + cmd1[0] + "'"
@@ -64,17 +87,22 @@ for i in range(len(cmd1)):
      cmd2=cmd2 + " " + cmd1[i]
 if (len(cmd1) != 1):
    cmd2=cmd2 + "'"
-print(cmd2)
-s.send(bytes(cmd2, "utf-8"))
+ciphertext = encrypt(cmd2, key)
+s.send(ciphertext)
 msgtotlen=s.recv(102400)
+msgtotlen1=decrypt(msgtotlen, key)
 msgtot=0
-s.send(bytes(" ", "utf-8"))
+ciphertext = encrypt(" ", key)
+s.send(ciphertext)
 msg=s.recv(102400)
-fullmess=msg.decode("utf-8")
-msgtot=msgtot+len(msg)
-while msgtot < int(msgtotlen.decode("utf-8")):
+msg1=decrypt(msg, key)
+msg1=msg1.decode("utf-8")
+fullmess=msg1
+msgtot=msgtot+len(msg1)
+while msgtot < int(msgtotlen1.decode("utf-8")):
    msg=s.recv(102400)
-   msgtot=msgtot+len(msg)
-   fullmess=fullmess + msg.decode("utf-8")
+   msg1=decrypt(msg, key)
+   msgtot=msgtot+len(msg1)
+   fullmess=fullmess + msg1.decode("utf-8")
 print(fullmess)
    

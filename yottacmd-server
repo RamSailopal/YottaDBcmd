@@ -4,6 +4,26 @@ import subprocess
 import argparse
 import sys
 import configparser
+import os
+from Crypto.Cipher import AES
+from Crypto.PublicKey import RSA
+from base64 import b64encode
+
+def encrypt(mess, key):
+   obj = AES.new(key, AES.MODE_CBC, 'This is an IV456')
+   mess=mess.encode()
+   length = 16 - (len(mess) % 16)
+   mess += bytes([length])*length
+   ciphertext = obj.encrypt(mess)
+   return ciphertext
+
+def decrypt(msg, key):
+   obj = AES.new(key, AES.MODE_CBC, 'This is an IV456')
+   msg1=obj.decrypt(msg)
+   msg1 = msg1[:-msg1[-1]]
+   return msg1
+
+
 config = configparser.ConfigParser()
 config.read('yottacmd.ini')
 yottaconfig = config['YottaDB']
@@ -19,46 +39,63 @@ except socket.error:
 s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((host, int(port)))
 s.listen(5)
-
 while True:
    psucc=0
    usucc=0
    clientsocket, address = s.accept()
    print(f"Connection from {address} has been established!")
+   key = os.urandom(16)
+   key_bytes=b64encode(key).decode('utf-8')
+   msg=clientsocket.recv(1024)
+   clientsocket.send(bytes(key_bytes, "utf-8"))
+   key=key_bytes
    msg=clientsocket.recv(1024) 
-   if (msg.decode("utf-8") != Username):
+   msg1=decrypt(msg, key)
+   if (msg1.decode("utf-8") != Username):
        resp="Username is incorrect"
-       clientsocket.send(resp.encode())
+       ciphertext = encrypt(resp, key)
+       clientsocket.send(ciphertext)
        clientsocket.close()
    else:
-       resp=" "
-       clientsocket.send(resp.encode())
+       resp=""
+       ciphertext = encrypt(resp, key)
+       clientsocket.send(ciphertext)
        usucc=1
    if ( usucc == 1 ):
       msg=clientsocket.recv(1024)
-      if (msg.decode("utf-8") != Password):
+      msg1=decrypt(msg, key)
+      if (msg1.decode("utf-8") != Password):
           resp="Password is incorrect"
-          clientsocket.send(resp.encode())
+          ciphertext = encrypt(resp, key)
+          clientsocket.send(ciphertext)
           clientsocket.close()
       else:
           resp=" "
-          clientsocket.send(resp.encode())
+          ciphertext = encrypt(resp, key)
+          clientsocket.send(ciphertext)
           psucc=1
    if ( usucc==1 and psucc==1 ):
       msg=clientsocket.recv(1024)
-      cmd="yottacmd " + msg.decode("utf-8")
+      msg1=decrypt(msg, key)
+      cmd="yottacmd " + msg1.decode("utf-8")
       process = subprocess.Popen(cmd,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE,
                               shell=True)
       result, err = process.communicate()
       if (result.decode("utf-8")!=""):
-         reslen=str(len(result)).encode()
-         clientsocket.send(reslen)
+         reslen=str(len(result))
+         ciphertext = encrypt(reslen, key)
+         clientsocket.send(ciphertext)
          msg=clientsocket.recv(1024)
-         clientsocket.send(result)
+         msg1=decrypt(msg, key)
+         ciphertext = encrypt(result.decode("utf-8"), key)
+         clientsocket.send(ciphertext)
       else:
-         errlen=len(error).encode()
-         clientsocket.send(errlen)
+         errlen=len(error)
+         ciphertext = encrypt(errlen, key)
+         clientsocket.send(ciphertext)
          msg=clientsocket.recv(1024)
-         clientsocket.send(err)
+         msg1=decrypt(msg, key)
+         ciphertext = encrypt(err.decode("utf-8"), key)
+         clientsocket.send(ciphertext)
