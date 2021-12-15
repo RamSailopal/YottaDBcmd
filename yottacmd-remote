@@ -60,7 +60,11 @@ if (command1[0]=="globaledit"):
    print("Global edits are not available using the remote client")
    sys.exit(1)
 s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((host,int(port)))
+try:
+    s.connect((host,int(port)))
+except socket.error:
+    print("Cannot connect to host - " + host)
+    sys.exit(1)
 s.send(bytes(" ", "utf-8"))
 key=s.recv(1024)
 key=key.decode("utf-8")
