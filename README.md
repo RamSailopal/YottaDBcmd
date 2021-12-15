@@ -52,13 +52,19 @@ This can be acheived with:
  
  # Executing commands remotely
  
- Commands can be run remotely against the YottaDB server by running the yottacmd-server process. To set up and run on the YottaDB server:
+ Encrypted commands can be run remotely against the YottaDB server by running the yottacmd-server process. To set up and run on the YottaDB server:
  
  1) Change the username and password as well as port if required in the yottacmd ini file.
- 2) Run **./yottaserver.sh start** to start the server process (the process can then be checked with **./yottaserver.sh status** or stopped with .**/yottaserver.sh stop**)
+ 2) Run **python3 -m pip install pycrypto**
+ 3) Run **./yottaserver.sh start** to start the server process (the process can then be checked with **./yottaserver.sh status** or stopped with .**/yottaserver.sh stop**)
 
 On the remote client, clone the repo or attain the **yottacmd-remote** executable and then run the command against the server i.e.
 
+    python3 -m pip install pycrypto
     ./yottacmd-remote -U Yotta -P "Access-Please" -p 4001 -s "192.168.1.5" -c 'globallist'
+    
+ **Pre-requisites**
+ 
+ Pycrypto requires that the **python3-devel** package is installed and so install this before running pip install pycrypto
 
   
