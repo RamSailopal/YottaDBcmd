@@ -18,7 +18,8 @@ def version():
                               shell=True)
     result = process.communicate()
     result1=result[0].decode('utf-8')
-    print("\nYottaDB Version\n")
+    message = typer.style("\nYottaDB Version\n", fg=typer.colors.YELLOW, bold=True)
+    typer.echo(message)
     print(result1)
 
 
@@ -33,7 +34,8 @@ def globallist(glbal: str="*"):
     result1=result[0].decode('utf-8').replace(" ","")
     result1=result1.replace("\n","")
     result1=result1.replace("^","\n^")
-    print("\nGlobals in YottaDB\n")
+    message = typer.style("\nGlobals in YottaDB\n", fg=typer.colors.YELLOW, bold=True)
+    typer.echo(message)
     result2=result1.split("\n")
     for glob in result2:
        if ( fnmatch.fnmatch(glob,glbal) ):
@@ -49,7 +51,8 @@ def routinelist(routine: str="*"):
     result = process.communicate()
     result1=result[0].decode('utf-8').replace(" ","\n")
     result1 = re.sub(r'\n+', '\n', result1).strip()
-    print("\nRoutines in YottaDB\n")
+    message = typer.style("\nRoutines in YottaDB\n", fg=typer.colors.YELLOW, bold=True)
+    typer.echo(message)
     result2=result1.split("\n")
     for rout in result2:
        if ( fnmatch.fnmatch(rout,routine) ):
@@ -69,7 +72,9 @@ def globalview(glbal: str):
     result = process.communicate()
     result1=result[0].decode('utf-8')
     result1 = re.sub(r'\n+', '\n', result1).strip()
-    print("\nYottaDB Global view for ^" + glbal + "\n")
+    message = typer.style("\nYottaDB Global view for ^" + glbal + "\n", fg=typer.colors.YELLOW, bold=True)
+    typer.echo(message)
+
     print(result1)
 
 @app.command(help="Search global(s) for a specific string. To pass more than one global, seperate global with commas i.e. 'global,global2'")
@@ -85,7 +90,9 @@ def globalsearch(glbal: str, searchstr: str):
                               shell=True)
     result = process.communicate()
     result1=result[0].decode('utf-8')
-    print("\nSearching global " + glbal + " for search string " + searchstr + "\n")
+    message = typer.style("\nSearching global " + glbal + " for search string " + searchstr + "\n", fg=typer.colors.YELLOW, bold=True)
+    typer.echo(message)
+
     print(result1)
 
 
@@ -98,7 +105,8 @@ def globaledit(ref: str):
                               shell=True)
     result = process.communicate()
     result1=result[0].decode('utf-8').replace(" ","\n")
-    print("\nYottaDB Global edit for " + ref + "\n")
+    message = typer.style("\nYottaDB Global edit for " + ref + "\n", fg=typer.colors.YELLOW, bold=True)
+    typer.echo(message)
     print(result1)
     resp=input("Do you wish to amend? (Y/N) ")
     if ( resp =="Y" ):
@@ -113,7 +121,8 @@ def globaledit(ref: str):
                               shell=True)
           result = process.communicate()
           result1=result[0].decode('utf-8').replace(" ","\n")
-          print("New value:\n" + ref + "=" + result1 + "\n")
+          message = typer.style("New value:\n" + ref + "=" + result1 + "\n", fg=typer.colors.YELLOW, bold=True)
+          typer.echo(message)
 
 
 
@@ -176,7 +185,8 @@ def routineedit(routine: str, nocompile: bool = False):
              print("\nEditing routine -  ^" + routine + "\n")
              os.system('vi ' + result1 + ' </dev/tty >/dev/tty 2>&1')
              if ( not nocompile ):
-               print("\n\nCompiling routine - " + routine + "\n\n")
+               message = typer.style("\n\nCompiling routine - " + routine + "\n\n", fg=typer.colors.YELLOW, bold=True)
+               typer.echo(message)
                os.system("ydb <<< 'ZL \"" + routine + ".m\"'")
     if (fnd==0):
        res=input("Do you want to create a new routine called " + routine + "? (Y/N) ")
@@ -187,7 +197,8 @@ def routineedit(routine: str, nocompile: bool = False):
                 print("\nCreating routine -  ^" + routine + "\n")
                 os.system('vi ' + path1 + '/' + routine + '.m </dev/tty >/dev/tty 2>&1')
                 if ( not nocompile ):
-                   print("\n\nCompiling routine - " + routine + "\n\n")
+                   message = typer.style("\n\nCompiling routine - " + routine + "\n\n", fg=typer.colors.YELLOW, bold=True)
+                   typer.echo(message)
                    os.system("ydb <<< 'ZL \"" + routine + ".m\"'")
                 break
 
@@ -207,6 +218,8 @@ def routinesearch(routine: str, searchstr: str):
     result = process.communicate()
     result1=result[0].decode('utf-8')
     print("\nSearching routine " + routine + " for " + searchstr + "\n")
+    message = typer.style("\nSearching routine " + routine + " for " + searchstr + "\n", fg=typer.colors.YELLOW, bold=True)
+    typer.echo(message)
     print(result1)
 
 
@@ -219,7 +232,8 @@ def configview():
                               shell=True)
     result = process.communicate()
     result1=result[0].decode('utf-8')
-    print("\nYottaDB Configuration environmental variables\n")
+    message = typer.style("\nYottaDB Configuration environmental variables\n", fg=typer.colors.YELLOW, bold=True)
+    typer.echo(message)
     print(result1)
 
 @app.command(help="Execute a YottaDB command")
@@ -232,6 +246,9 @@ def command(command: str):
     result = process.communicate()
     result1=result[0].decode('utf-8')
     print("\nYottaDB Command execution\n")
+    message = typer.style("\nYottaDB Command execution\n", fg=typer.colors.YELLOW, bold=True)
+    typer.echo(message)
+
     print(result1)
 
 
@@ -249,7 +266,8 @@ def databasesize(nographic: bool=False):
                               shell=True)
     result = process.communicate()
     result1=result[0].decode('utf-8')
-    print("\nYottaDB Database size\n")
+    message = typer.style("\nYottaDB Database size\n", fg=typer.colors.YELLOW, bold=True)
+    typer.echo(message)
     result2=result1.split("\n")
     for line in result2:
        print(line)
