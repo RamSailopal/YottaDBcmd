@@ -1,0 +1,24 @@
+#
+#       AUTHOR - Raman Sailopal
+#
+#       docker compose yml file for the YottaDB-cmd stack
+#
+version: "2"
+services:
+ server:
+   image: docker.io/ramb0/yottadbcmd
+   hostname: yotta-server
+   container_name: yotta-server
+   networks:
+      - yottanet
+
+ client:
+   image: docker.io/ramb0/yottadbcmd-client
+   hostname: yotta-client
+   container_name: yotta-client
+   networks:
+      - yottanet
+
+networks:
+    yottanet:
+
