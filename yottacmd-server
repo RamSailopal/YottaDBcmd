@@ -77,12 +77,16 @@ while True:
    if ( usucc==1 and psucc==1 ):
       msg=clientsocket.recv(1024)
       msg1=decrypt(msg, key)
-      cmd="yottacmd " + msg1.decode("utf-8")
+      if ( msg1.decode("utf-8") == "" ):
+         cmd="yottacmd command --help"
+      else: 
+         cmd="yottacmd " + msg1.decode("utf-8")
       process = subprocess.Popen(cmd,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE,
                               shell=True)
       result, err = process.communicate()
+      print(result)
       if (result.decode("utf-8")!=""):
          reslen=str(len(result))
          ciphertext = encrypt(reslen, key)
@@ -92,7 +96,7 @@ while True:
          ciphertext = encrypt(result.decode("utf-8"), key)
          clientsocket.send(ciphertext)
       else:
-         errlen=len(error)
+         errlen=str(len(err))
          ciphertext = encrypt(errlen, key)
          clientsocket.send(ciphertext)
          msg=clientsocket.recv(1024)
