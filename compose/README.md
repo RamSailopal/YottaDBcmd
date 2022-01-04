@@ -2,7 +2,7 @@ Docker stack with both client and server.
 
 To run:
 
-    docker-compose up
+    docker-compose up -d
     
     docker exec -it yottaclient /bin/bash
     
