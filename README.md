@@ -1,6 +1,7 @@
 # Introduction
 
 ![example workflow](https://github.com/RamSailopal/yottaDBcmd/actions/workflows/deploy.yml/badge.svg)
+![example workflow](https://github.com/RamSailopal/yottaDBcmd/actions/workflows/deploy1.yml/badge.svg)
 
 ![Alt text](yottacmd.webp?raw=true "Yottacmd")
 
