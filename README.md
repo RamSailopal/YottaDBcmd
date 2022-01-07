@@ -76,4 +76,3 @@ On the remote client, clone the repo or attain the **yottacmd-remote** executabl
  
  https://github.com/RamSailopal/YottaDBcmd/tree/main/compose
 
-  
