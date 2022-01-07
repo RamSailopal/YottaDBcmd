@@ -1,5 +1,7 @@
 # Introduction
 
+![example workflow](https://github.com/RamSailopal/yottaDBcmd/actions/workflows/deploy.yml/badge.svg)
+
 ![Alt text](yottacmd.webp?raw=true "Yottacmd")
 
 A command line utility with command line completion for YottaDB written in Python and utilising Typer
