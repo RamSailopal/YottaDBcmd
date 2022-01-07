@@ -29,7 +29,7 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
          image: ramb0/yottadbcmd-client
-         dockerfile: Dockerfile-Client
+         dockerfile: Dockerfile-client
          registry: docker.io
          username: ${{ secrets.DOCKER_USERNAME }}
          password: ${{ secrets.DOCKER_PASSWORD }}
