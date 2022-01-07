@@ -1,0 +1,5 @@
+FROM docker.io/yottadb/yottadb-base
+RUN ln -s /opt/yottadb/current/ydb /usr/local/bin/ydb && ln -sf /bin/bash /bin/sh && apt-get update && apt-get install -y git python3 python3-pip
+RUN cd /usr/local && git clone https://github.com/RamSailopal/YottaDBcmd.git && python3 -m pip install pycrypto && cd /usr/local/YottaDBcmd && ./install.sh
+WORKDIR /usr/local/YottaDBcmd
+ENTRYPOINT ./yottacmd-server
